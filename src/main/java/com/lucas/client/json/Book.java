@@ -9,6 +9,7 @@ public class Book implements Cloneable {
     private String author;
     private String publisher;
 
+
     public int getId() {
         return id;
     }
@@ -57,14 +58,4 @@ public class Book implements Cloneable {
         this.publisher = publisher;
     }
 
-    public Book clone() {
-        Book b = new Book();
-        b.setId(this.id);
-        b.setTitle(this.title);
-        b.setDescription(this.description);
-        b.setIsbn(this.isbn);
-        b.setAuthor(this.author);
-        b.setPublisher(this.publisher);
-        return b;
-    }
 }

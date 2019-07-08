@@ -53,22 +53,22 @@ public class ClientEntry {
                         exit = 0;
                         break;
                     case 1:
-                        new ClientRequests ().help ();
+                        new ClientRequest ().help ();
                         break;
                     case 2:
-                        new ClientRequests ().listAllbooks ();
+                        new ClientRequest ().postRequestBook ();
                         break;
                     case 3:
-                        new ClientRequests ().displaySelector ();
+                        new ClientRequest ().postRequestBook ();
                         break;
                     case 4:
-                        new ClientRequests ().addBook ();
+                        new ClientRequest ().postRequestBook ();
                         break;
                     case 5:
-                        new ClientRequests ().updateBook ();
+                        new ClientRequest ().postRequestBook ();
                         break;
                     case 6:
-                        new ClientRequests ().deleteBook ();
+                        new ClientRequest ().postRequestBook ();
                         break;
 
                     default:
