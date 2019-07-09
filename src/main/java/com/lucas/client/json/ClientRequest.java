@@ -5,43 +5,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import org.eclipse.persistence.jaxb.UnmarshallerProperties;
-import org.eclipse.persistence.mappings.structures.ArrayMapping;
-
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Scanner;
+import java.util.*;
 
 public class ClientRequest {
 
     Client client = Client.create();
-    String postUrl = "http://localhost:8080/LibraryServerRest_war/service/book/posting";
+    String urlClient = "http://localhost:8080/LibraryServerRest_war/service/book/";
 
     public void postRequestBook() throws MalformedURLException {
-        WebResource webResource = client.resource ( postUrl );
+        String url = urlClient+"posting";
+        WebResource webResource = client.resource ( url );
         Book book = new ClientRequest ().preparationBook ( false );
-        ObjectMapper mapper = new ObjectMapper();
-        String inputData = null;
-        try {
-            inputData = mapper.writeValueAsString(book);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace ( );
-        }
+        mapperBook ( webResource, book );
+        ClientEntry.showMenu ( );
+    }
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper ( );
-            Book bookMapper = objectMapper.readValue ( inputData, Book.class );
-
-
-        } catch (IOException e) {
-            e.printStackTrace ( );
-        }
-
-        exceptionManagerPost ( webResource, inputData );
+    public void listRequestBook() throws MalformedURLException {
+        String url = urlClient+"list";
+        WebResource webResource = client.resource ( url );
+        mapperList ( webResource);
         ClientEntry.showMenu ( );
     }
 
@@ -59,16 +43,49 @@ public class ClientRequest {
     }
 
 
-    public void exceptionManagerPost(WebResource webResource, String inputData) {
+    public void mapperBook(WebResource webResource, Book book) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        String inputData = null;
+        try {
+            inputData = mapper.writeValueAsString(book);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace ( );
+        }
+
         ClientResponse response = webResource.type ( "application/json" ).post ( ClientResponse.class, inputData );
         if (response.getStatus ( ) != 200) {
             throw new RuntimeException ( "HTTP Error: " + response.getStatus ( ) );
         }
 
-        String result = response.getEntity ( String.class );
-        System.out.println ( "Response from the Server: " );
-        System.out.println ( result );
+        try {
+            ObjectMapper objectMapper = new ObjectMapper ( );
+            Messages message = objectMapper.readValue (response.getEntity ( String.class ), Messages.class );
+            System.out.println ( message.getMessage () );
+            System.out.println ( message.getEstatus () );
+        } catch (IOException e) {
+            e.printStackTrace ( );
+        }
+    }
 
+    public void mapperList(WebResource webResource) {
+
+        ClientResponse response = webResource.type ( "application/json" ).get ( ClientResponse.class);
+        if(response.getStatus()!=200){
+            throw new RuntimeException("HTTP Error: "+ response.getStatus());
+        }
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper ( );
+            Book [] arrayBook = objectMapper.readValue (response.getEntity ( String.class ),Book[].class);
+            for (Book jBook : arrayBook ) {
+                System.out.println ( "------------------------------------------------" );
+                System.out.println ("ID: " + jBook.getId () + " / " + "Title: " + jBook.getTitle ());
+            }
+        } catch (IOException e) {
+            e.printStackTrace ( );
+        }
+        System.out.println ( "------------------------------------------------" );
     }
 
     public Book preparationBook (boolean update) {
