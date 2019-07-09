@@ -65,7 +65,7 @@ public class ClientEntry {
                         new ClientRequest ().postRequestBook ();
                         break;
                     case 5:
-                        new ClientRequest ().postRequestBook ();
+                        new ClientRequest ().updateRequestBook ();
                         break;
                     case 6:
                         new ClientRequest ().postRequestBook ();
