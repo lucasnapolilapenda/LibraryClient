@@ -3,6 +3,7 @@ package com.lucas.client.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
@@ -42,6 +43,25 @@ public class ClientRequest {
         ClientEntry.showMenu ( );
     }
 
+    public void idRequestBook() throws MalformedURLException {
+        System.out.println ( ":::::: Module Search by Id ::::::" );
+        String url = urlClient+"getid";
+        WebResource webResource = client.resource ( url );
+        Integer id = new ClientRequest ().idInput ();
+        mapperId ( webResource, id, false);
+        ClientEntry.showMenu ( );
+    }
+
+    public void deleteRequestBook() throws MalformedURLException {
+        System.out.println ( ":::::: Module delete by Id  ::::::" );
+        String url = urlClient+"delete";
+        WebResource webResource = client.resource ( url );
+        Integer id = new ClientRequest ().idInput ();
+        mapperId ( webResource, id, true);
+        ClientEntry.showMenu ( );
+    }
+
+
     public void help() throws MalformedURLException {
         System.out.println ( "***** Welcome to Solo's Library System Version RestJson *****" );
         System.out.println (    "\n In this System you can search, add and delete books. " +
@@ -79,15 +99,7 @@ public class ClientRequest {
                 throw new RuntimeException ( "HTTP Error: " + response.getStatus ( ) );
             }
         }
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper ( );
-            Messages message = objectMapper.readValue (response.getEntity ( String.class ), Messages.class );
-            System.out.println ( message.getMessage () );
-            System.out.println ( message.getEstatus () );
-        } catch (IOException e) {
-            e.printStackTrace ( );
-        }
+        messageManager ( response );
     }
 
     public void mapperList(WebResource webResource) {
@@ -108,6 +120,44 @@ public class ClientRequest {
             e.printStackTrace ( );
         }
         System.out.println ( "------------------------------------------------" );
+    }
+
+    public void mapperId (WebResource webResource, Integer id, Boolean delete) {
+        ObjectMapper mapper = new ObjectMapper();
+        String inputData = null;
+        ClientResponse response = null;
+
+        try {
+            inputData = mapper.writeValueAsString(id);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace ( );
+        }
+
+        if (delete) {
+            response = webResource.type ( "application/json" ).delete ( ClientResponse.class, inputData );
+            if (response.getStatus ( ) != 200) {
+                throw new RuntimeException ( "HTTP Error: " + response.getStatus ( ) );
+            }
+        messageManager ( response );
+        }
+
+        else {
+            response = webResource.type ( "application/json" ).put ( ClientResponse.class, inputData );
+            if (response.getStatus ( ) != 200) {
+                throw new RuntimeException ( "HTTP Error: " + response.getStatus ( ) );
+            }
+
+            try {
+                ObjectMapper objectMapper = new ObjectMapper ( );
+                Book book = objectMapper.readValue (response.getEntity ( String.class ),Book.class);
+                    System.out.println ( "------------------------------------------------" );
+                    System.out.println ("ID: " + book.getId () + " / " + "Title: " + book.getTitle ());
+
+            } catch (IOException | ClientHandlerException e) {
+                System.out.println ( "Record not Found" );
+            }
+            System.out.println ( "------------------------------------------------" );
+        }
     }
 
     public Book preparationBook () {
@@ -136,6 +186,17 @@ public class ClientRequest {
         Scanner sc = new Scanner ( System.in );
         Integer id = Integer.valueOf (sc.nextLine ());
         return id;
+    }
+
+    public void messageManager (ClientResponse response) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper ( );
+            Messages message = objectMapper.readValue (response.getEntity ( String.class ), Messages.class );
+            System.out.println ( message.getMessage () );
+            System.out.println ( message.getEstatus () );
+        } catch (IOException e) {
+            e.printStackTrace ( );
+        }
     }
 
 

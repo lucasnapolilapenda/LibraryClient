@@ -59,7 +59,7 @@ public class ClientEntry {
                         new ClientRequest ().listRequestBook ();
                         break;
                     case 3:
-                        new ClientRequest ().postRequestBook ();
+                        new ClientRequest ().idRequestBook ();
                         break;
                     case 4:
                         new ClientRequest ().postRequestBook ();
@@ -68,7 +68,7 @@ public class ClientEntry {
                         new ClientRequest ().updateRequestBook ();
                         break;
                     case 6:
-                        new ClientRequest ().postRequestBook ();
+                        new ClientRequest ().deleteRequestBook ();
                         break;
 
                     default:
